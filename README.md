@@ -5,57 +5,126 @@ This program uses a simple lexicon-based approach to classify tweets as positive
 
 ```mermaid
 classDiagram
-    class DSString {
-        -char* data
-        -size_t len
-        +DSString()
-        +DSString(const char*)
-        +DSString(const DSString&)
-        +operator=(const DSString&) DSString&
-        +~DSString()
-        +length() size_t
-        +c_str() const char*
-        +operator[](size_t) char&
-        +operator[](size_t) const char
-        +operator+(const DSString&) DSString
-        +operator==(const DSString&) bool
-        +operator<(const DSString&) bool
-        +substring(size_t, size_t) DSString
-        +toLower() DSString
-    }
-
-    class TrainingTweet {
-        +int sentiment
-        +DSString tweetID
-        +DSString date
-        +DSString query
-        +DSString username
-        +DSString text
-    }
-
-    class TestingTweet {
-        +DSString tweetID
-        +DSString date
-        +DSString query
-        +DSString username
-        +DSString text
-    }
-
-    class SentimentAnalyzer {
-        <<Main Program>>
-        +toInt(const DSString&, int&) bool
-        +trim(const DSString&) DSString
-        +removeQuotes(const DSString&) DSString
-        +normalizeWord(const DSString&) DSString
-        +tokenize(const DSString&) vector~DSString~
-        +main(int, char*[]) int
-    }
-
-    TrainingTweet --* DSString : contains
-    TestingTweet --* DSString : contains
-    SentimentAnalyzer ..> TrainingTweet : uses
-    SentimentAnalyzer ..> TestingTweet : uses
-    SentimentAnalyzer ..> DSString : uses
+    class SearchEngine {
+        -IndexHandler ih
+        -DocumentParser dp
+        -UserInterface ui
+        -QueryProcessor qp
+        +input(int, char**)
+    }
+    
+    class UserInterface {
+        -chrono::duration<double> elapsedTrain
+        -IndexHandler ih
+        -QueryProcessor qp
+        -DocumentParser dp
+        +initialQuestion()
+    }
+    
+    class DocumentParser {
+        -IndexHandler ih
+        -vector<string> titles
+        +parseDocument(const string&)
+        +printDocument(const string&)
+        +setIndex(IndexHandler)
+        +getIndex() IndexHandler
+        +traverseSubdirectory(const string&)
+        +printInfo(const string&)
+        +getTitle(int) string
+    }
+    
+    class IndexHandler {
+        -DSAvlTree<string, string> words
+        -Hash<string, string> people
+        -Hash<string, string> orgs
+        -vector<string> docs
+        -map<string, int> wordCount
+        +getWords(string) map<string, int>
+        +getPeople(string) map<string, int>
+        +getOrgs(string) map<string, int>
+        +getWordCount(string) int
+        +addWords(string, string)
+        +addPeople(string, string)
+        +addOrgs(string, string)
+        +addDocument(string)
+        +addWordCount(string, int)
+        +getDocSize() int
+        +createPersistence()
+        +readPersistence()
+        +returnSize() int
+    }
+    
+    class QueryProcessor {
+        -vector<string> storage
+        -map<string, int> relevantDocuments
+        -map<string, int> relDocs
+        -map<string, int> sendTo
+        -IndexHandler indexObject
+        -vector<string> printVector
+        +getPrintVector() vector<string>
+        +getPrintVectorSize() int
+        +getPrint(int) string
+        +clearPrintVector()
+        +parsingAnswer(string) map<string, int>
+        +disectAnswer() map<string, int>
+        +intersection(map<string, int>, map<string, int>) map<string, int>
+        +complement(map<string, int>, map<string, int>) map<string, int>
+        +setIndexHandler(IndexHandler)
+        +Relevancy(map<string, int>) vector<string>
+        +quickSort(map<string, int>&, int, int)
+        +partition(map<string, int>, int, int) int
+    }
+    
+    class DSAvlTree~Comparable, Value~ {
+        -struct DSAvlNode
+        -DSAvlNode* root
+        -int size
+        +DSAvlTree()
+        +~DSAvlTree()
+        +contains(const Comparable&) map<Value, int>
+        +isEmpty() bool
+        +makeEmpty()
+        +insert(const Comparable&, const Value&)
+        +insert(const Comparable&, const Value&, const int&)
+        +remove(const Comparable&)
+        +getSize() int
+        +printTree(ostream&)
+    }
+    
+    class Hash~Comparable, Value~ {
+        -struct HashNode
+        -int capacity
+        -int size
+        -HashNode** table
+        +Hash()
+        +~Hash()
+        +getSize() int
+        +clear()
+        +createHash(int)
+        +clone(const Hash&)
+        +insert(Comparable, Value)
+        +insert(Comparable, Value, int)
+        +printHash(ostream&)
+        -secondInsert(Comparable, map<Value, int>)
+        -rehash()
+        -hash(Comparable) int
+    }
+    
+    SearchEngine --> IndexHandler
+    SearchEngine --> DocumentParser
+    SearchEngine --> UserInterface
+    SearchEngine --> QueryProcessor
+    
+    UserInterface --> IndexHandler
+    UserInterface --> QueryProcessor
+    UserInterface --> DocumentParser
+    
+    DocumentParser --> IndexHandler
+    QueryProcessor --> IndexHandler
+    
+    IndexHandler --> "1" DSAvlTree~string, string~ : words
+    IndexHandler --> "1" Hash~string, string~ : people
+    IndexHandler --> "1" Hash~string, string~ : orgs
 ```
 ## Questions
 

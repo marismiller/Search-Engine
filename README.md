@@ -1,5 +1,5 @@
 ## Design Documentation
-This program uses a simple lexicon-based approach to classify tweets as positive (sentiment value 4) or negative (sentiment value 0). It is trained on the tweets in train.csv, then tested on the tweets in test.csv, and finally the results are compared to the known sentiment values in test_ground.csv. The DSString class is a custom string class that provides memory management (allocation and deallocation), string manipulation operations (concatenation and substring extraction, comparison operations, case conversion, and C-string compatibility. The TrainingTweet class contains tweet ID, date, query, username, text and sentiment value. The TestingTweet class contains the same information, but without the sentiment value. Several helper functions help clean and process the text, including tokenizer which splits the text into individual words. There is also a custom hash function which allows for the use of DSString in an unordered map. In the main program, a lexicon dictionary is built based on the training data, where each word has a sentiment score. The score is incremented if the word appears in a positive tweet and decremented if the word appears in a negative tweet. Then, the test tweets are classified based on the sum of the scores of the words they contain. If the score is non-negative, the tweet is classified as positive, and if the score is negative, the tweet is classified as negative. Each prediction is output to a csv file. Then, predictions are evaluated against the ground truth, and the accuracy, as well as a list of misclassified tweets are output to a text file. 
+This program is a search engine for documents in JSON format. Only sample data is included here because the full dataset is too large to inlcude in the repository. The full dataset can be found at https://www.kaggle.com/jeet2016/us-financial-news-articles. To run the program as is, you need to include a data/archive folder, but you can leave it empty to run with sample data. The program indexes each file by reading the text, removing stopwords, and applying the Porter2 stemming algorithm, then builds data structures (AVL trees, hash tables) that map from words or entity names (people, organizations) to the documents where they appear. This allows for fast lookups of relevant documents when a user enters a query. When the user runs the program, they can parse an entire directory of .json files to build an index, save that index to a file so it can be reused later, load the index back in without re‐parsing all files, and query for specific search terms. The query engine supports normal words, excluded terms (prefixed by -), and special tags for organizations (ORG:) and persons (PERSON:). It then ranks the matching documents (using a simple tf–idf style metric) and prints the most relevant results, with an option to view each document’s text. 
 
 ## UML Diagram
 
@@ -127,11 +127,11 @@ classDiagram
     IndexHandler --> "1" Hash~string, string~ : orgs
 ```
 
+## Collaborators
+William Bjorndahl
+
 ## Sources
 1) https://chatgpt.com/c/67ba5084-4014-8001-b3ec-381ec8a3fa7e?model=o1
 2) https://claude.ai/chat/4e6cd8d2-a82f-4a20-b51b-c1d1fe3ed052
 3) https://www.cursor.com/en
-
-I used ChatGPT to implement the DSString.cpp and sentiment.cpp programs, as well as debug build issues and learn about the time complexities. I used Cursor and Claude together to create a UML diagram in Mermaid. 
-
-
+4) https://github.com/msappel4/cs5393-002_project4/blob/main/howtorun.txt
